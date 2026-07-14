@@ -87,7 +87,11 @@ def build_parser():
             "SLURM job array, with self-installing sra-tools."
         ),
     )
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command")
+    # Python 3.6's argparse.add_subparsers() rejects required=True as a
+    # kwarg (bpo-9253); setting the attribute afterward works on every
+    # version from 3.6 onward.
+    subparsers.required = True
     _add_install_parser(subparsers)
     _add_submit_parser(subparsers)
     _add_run_task_parser(subparsers)
