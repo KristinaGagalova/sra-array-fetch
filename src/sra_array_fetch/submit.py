@@ -4,12 +4,10 @@ The job array's size is computed dynamically from the number of accessions
 in the ``--ids`` file, so it never needs to be updated by hand as the list
 grows or shrinks.
 """
-from __future__ import annotations
-
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Tuple, Union
 
 TEMPLATE_PATH = Path(__file__).parent / "templates" / "worker.slurm.j2"
 
@@ -25,7 +23,7 @@ def compute_array_range(
     start: Optional[int] = None,
     end: Optional[int] = None,
     throttle: Optional[int] = None,
-) -> tuple[str, int]:
+) -> Tuple[str, int]:
     """Return (array_range_string, total_accession_count).
 
     ``start``/``end`` default to the full 1..N range found in ``ids_file``.

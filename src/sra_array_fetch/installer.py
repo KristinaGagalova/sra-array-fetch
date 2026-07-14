@@ -4,8 +4,6 @@ Downloads the ``current`` sratoolkit release (a stable NCBI URL that always
 points at the latest build) and extracts it locally -- no sudo, no module
 system, no hardcoded version number required.
 """
-from __future__ import annotations
-
 import platform
 import shutil
 import subprocess
@@ -79,7 +77,10 @@ def install(install_dir: Path, platform_name: Optional[str] = None, force: bool 
         with tarfile.open(tmp_path) as tf:
             tf.extractall(install_dir)  # noqa: S202 - official NCBI archive
     finally:
-        tmp_path.unlink(missing_ok=True)
+        try:
+            tmp_path.unlink()
+        except FileNotFoundError:
+            pass
 
     bin_dir = find_existing_bin(install_dir)
     if bin_dir is None:

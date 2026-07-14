@@ -11,8 +11,6 @@ Three subcommands:
                          also be run directly (with --task-id) to test one
                          accession on a login node before submitting.
 """
-from __future__ import annotations
-
 import sys
 from pathlib import Path
 from typing import List, Optional

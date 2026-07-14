@@ -5,15 +5,13 @@ This is what actually runs inside each SLURM array task (invoked via
 ``prefetch``/``fasterq-dump``, so it can also be run directly on a login
 node for local testing of a single accession (pass ``--task-id``).
 """
-from __future__ import annotations
-
 import gzip
 import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from . import installer
 
@@ -30,7 +28,7 @@ def get_accession(ids_file: Path, line_number: int) -> str:
     raise ValueError(f"{ids_file} has fewer than {line_number} non-empty lines")
 
 
-def _compress_fastqs(fastqs: list[Path], threads: int) -> None:
+def _compress_fastqs(fastqs: List[Path], threads: int) -> None:
     pigz = shutil.which("pigz")
     if pigz:
         subprocess.run([pigz, "-p", str(threads), *[str(f) for f in fastqs]], check=True)
