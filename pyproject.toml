@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sra-array-fetch"
+version = "0.1.0"
+description = "Dynamically-sized SLURM job arrays for downloading SRA runs and converting them to FASTQ, with self-installing sra-tools."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Kristina Gagalova" }]
+keywords = ["bioinformatics", "SRA", "SLURM", "HPC", "fastq", "sra-tools"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/KristinaGagalova/sra-array-fetch"
+Issues = "https://github.com/KristinaGagalova/sra-array-fetch/issues"
+
+[project.scripts]
+sra-array = "sra_array_fetch.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+sra_array_fetch = ["templates/*.j2"]
