@@ -1,3 +1,25 @@
+Metadata-Version: 2.4
+Name: sra-array-fetch
+Version: 0.1.0
+Summary: Dynamically-sized SLURM job arrays for downloading SRA runs and converting them to FASTQ, with self-installing sra-tools.
+Author: Kristina Gagalova
+License: MIT
+Project-URL: Homepage, https://github.com/KristinaGagalova/sra-array-fetch
+Project-URL: Issues, https://github.com/KristinaGagalova/sra-array-fetch/issues
+Keywords: bioinformatics,SRA,SLURM,HPC,fastq,sra-tools
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: dev
+Requires-Dist: pytest>=7; extra == "dev"
+Dynamic: license-file
+
 # sra-array-fetch
 
 Download SRA runs and convert them to FASTQ as a **dynamically-sized SLURM
@@ -133,14 +155,6 @@ whatever `python3` resolves to on `$PATH` (rather than a venv path), which
 works transparently as long as login and compute nodes share the same base
 Python — the normal case on Pawsey/Gadi.
 
-> **Bare system `python3` too old?** HPC login nodes sometimes default to a
-> genuinely old system Python (e.g. 3.6) before any module is loaded. This
-> package targets Python 3.6+ specifically so Option B keeps working in that
-> situation — but if you hit a `SyntaxError` anyway, check which `python3`
-> your alias resolves to (`type python3`) and, if needed, `module load
-> python/<newer-version>` before sourcing the alias so a more recent
-> interpreter is picked up.
-
 **Trade-off:** if you ever add a dependency to this package later, Option B
 stops working (`PYTHONPATH` doesn't resolve dependencies) — switch to Option
 A's venv at that point, just point it at `$MYSCRATCH/envs/...` instead of
@@ -152,24 +166,6 @@ A's venv at that point, just point it at `$MYSCRATCH/envs/...` instead of
 > quota is tight, always pass `--tools-dir "$MYSCRATCH/tools/sra-tools"`
 > to `sra-array submit` / `sra-array install` / `sra-array run-task` to keep
 > that off your home directory too.
-
-> **`pip install -e .` fails with "setup.py not found"?** That means your
-> pip predates [PEP 660](https://peps.python.org/pep-0660/) (pip < 21.3),
-> which is common on HPC default environments (e.g. Setonix ships pip
-> 20.0.2). Either upgrade pip first —
-> ```bash
-> python3 -m pip install --upgrade pip
-> pip install -e .
-> ```
-> — or skip editable mode entirely and just do a regular install, which
-> works on any pip version:
-> ```bash
-> pip install .
-> ```
-> The only difference: with `-e`, local source edits take effect
-> immediately; with a regular install, re-run `pip install .` after pulling
-> updates. For normal usage (not developing the package itself), `pip
-> install .` is the simpler choice.
 
 ## Quick start
 

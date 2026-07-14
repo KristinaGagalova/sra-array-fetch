@@ -1,0 +1,2 @@
+[console_scripts]
+sra-array = sra_array_fetch.cli:main

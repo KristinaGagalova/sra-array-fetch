@@ -7,13 +7,14 @@ name = "sra-array-fetch"
 version = "0.1.0"
 description = "Dynamically-sized SLURM job arrays for downloading SRA runs and converting them to FASTQ, with self-installing sra-tools."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.6"
 license = { text = "MIT" }
 authors = [{ name = "Kristina Gagalova" }]
 keywords = ["bioinformatics", "SRA", "SLURM", "HPC", "fastq", "sra-tools"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.6",
   "Operating System :: POSIX :: Linux",
   "Operating System :: MacOS",
   "Intended Audience :: Science/Research",
