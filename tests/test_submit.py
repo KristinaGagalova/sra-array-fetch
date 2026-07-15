@@ -78,11 +78,13 @@ def test_render_script_substitutes_all_placeholders(tmp_path):
         tools_dir=tmp_path / "tools",
         max_size="100G",
         python_exe="python3",
+        package_parent_dir="/some/path/src",
     )
     assert "__" not in script  # no leftover placeholder markers
     assert "#SBATCH --account=pawsey1142" in script
     assert "#SBATCH --array=1-279" in script
     assert "run-task" in script
+    assert 'export PYTHONPATH="/some/path/src' in script
 
 
 def test_submit_dry_run_writes_script(tmp_path):
@@ -98,3 +100,20 @@ def test_submit_dry_run_writes_script(tmp_path):
     script_path = Path(result)
     assert script_path.exists()
     assert "#SBATCH --array=1-5" in script_path.read_text()
+
+
+def test_submit_auto_computes_package_parent_dir(tmp_path):
+    """The generated script's PYTHONPATH should point at the real src/ dir,
+    not depend on the job inheriting PYTHONPATH from the submitting shell."""
+    ids = _write_ids(tmp_path, 3)
+    result = submit_mod.submit(
+        ids_file=ids,
+        outdir=tmp_path / "out",
+        sra_cache=tmp_path / "cache",
+        tools_dir=tmp_path / "tools",
+        account="pawsey1142",
+        dry_run=True,
+    )
+    script_text = Path(result).read_text()
+    expected_src_dir = str(Path(submit_mod.__file__).resolve().parent.parent)
+    assert f'export PYTHONPATH="{expected_src_dir}' in script_text

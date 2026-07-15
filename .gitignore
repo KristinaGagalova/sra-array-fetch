@@ -1,35 +1,11 @@
-# Python bytecode
 __pycache__/
 *.py[cod]
-*$py.class
-
-# Compiled Python files
-*.so
-
-# Virtual environments
-.venv/
-venv/
-env/
-ENV/
-
-# Python packaging
+*.egg-info/
 build/
 dist/
-*.egg-info/
-
-# Testing
 .pytest_cache/
-.coverage
-htmlcov/
-
-# Type checkers
-.mypy_cache/
-.pyre/
-.ruff_cache/
-
-# IDEs
-.vscode/
-.idea/
-
-# macOS/Linux
+.venv/
+venv/
+logs/
+*.generated.slurm
 .DS_Store

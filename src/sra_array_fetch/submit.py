@@ -66,6 +66,7 @@ def render_script(
     tools_dir: Path,
     max_size: str,
     python_exe: str,
+    package_parent_dir: str,
 ) -> str:
     """Fill in the SLURM template using plain string substitution.
 
@@ -89,6 +90,7 @@ def render_script(
         "__SRACACHE__": str(sra_cache),
         "__TOOLS_DIR__": str(tools_dir),
         "__MAX_SIZE__": max_size,
+        "__PACKAGE_PARENT_DIR__": package_parent_dir,
     }
     for key, value in replacements.items():
         template = template.replace(key, value)
@@ -112,6 +114,7 @@ def submit(
     max_size: str = "100G",
     log_dir: Optional[Path] = None,
     python_exe: str = "python3",
+    package_parent_dir: Optional[str] = None,
     dry_run: bool = False,
 ) -> Union[subprocess.CompletedProcess, str]:
     """Generate the batch script and submit it with ``sbatch`` (unless dry_run)."""
@@ -127,6 +130,14 @@ def submit(
     outdir.mkdir(parents=True, exist_ok=True)
     sra_cache.mkdir(parents=True, exist_ok=True)
 
+    # The directory containing the sra_array_fetch package itself (its
+    # parent), so the generated script can `export PYTHONPATH=...` and
+    # guarantee `import sra_array_fetch` works on the compute node -- this
+    # does not rely on the SLURM job inheriting the submitting shell's
+    # environment, which not all clusters do.
+    if package_parent_dir is None:
+        package_parent_dir = str(Path(__file__).resolve().parent.parent)
+
     script = render_script(
         job_name=job_name,
         account=account,
@@ -141,6 +152,7 @@ def submit(
         tools_dir=tools_dir,
         max_size=max_size,
         python_exe=python_exe,
+        package_parent_dir=package_parent_dir,
     )
 
     script_path = log_dir / f"{job_name}.generated.slurm"

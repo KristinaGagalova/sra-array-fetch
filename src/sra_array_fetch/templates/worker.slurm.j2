@@ -17,6 +17,13 @@
 
 set -euo pipefail
 
+# Make sure the compute node can `import sra_array_fetch` regardless of
+# whether this job inherited PYTHONPATH from the submitting shell (many
+# clusters do not guarantee this). The path below is the directory
+# containing the sra_array_fetch package (its parent), computed at submit
+# time from wherever `sra-array` was actually running from.
+export PYTHONPATH="__PACKAGE_PARENT_DIR__${PYTHONPATH:+:$PYTHONPATH}"
+
 exec __PYTHON__ -m sra_array_fetch run-task \
   --ids "__IDS__" \
   --outdir "__OUTDIR__" \
