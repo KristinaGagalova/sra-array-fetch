@@ -217,8 +217,8 @@ sra-array submit \
   --account pawsey1142 \
   [--sra-cache DIR] [--tools-dir DIR] [--job-name NAME] \
   [--start N] [--end N] [--throttle N] \
-  [--cpus N] [--mem 16G] [--time 12:00:00] [--max-size 100G] \
-  [--python /path/to/python3] [--dry-run]
+  [--cpus N] [--mem 16G] [--time 12:00:00] [--partition NAME] \
+  [--max-size 100G] [--python /path/to/python3] [--dry-run]
 ```
 
 | Flag | Default | Description |
@@ -234,6 +234,7 @@ sra-array submit \
 | `--cpus` | `8` | cpus-per-task |
 | `--mem` | `16G` | Memory per task |
 | `--time` | `12:00:00` | Walltime |
+| `--partition` | account default | SLURM partition — see [Compute-node internet access](#compute-node-internet-access) below, this is usually required |
 | `--max-size` | `100G` | Max `.sra` size passed to `prefetch` |
 | `--python` | current interpreter | Python invoked on compute nodes — make sure it's reachable there |
 | `--dry-run` | off | Only generate the batch script, don't submit |
@@ -260,19 +261,44 @@ array job SLURM sets that env var for you and `--task-id` can be omitted.
 
 ## Compute-node internet access
 
-Some HPC clusters (Setonix included) only allow outbound internet access
-from login nodes, not compute nodes. If that's the case for your cluster,
-run `sra-array install` once from a login node before calling `submit`, so
-`sra-tools` is already in place when the array tasks start:
+Many HPC clusters (Setonix included) route outbound internet access only
+through login nodes or a dedicated data-transfer partition — **not** the
+general-purpose compute partition. This matters here because `prefetch`
+needs to reach NCBI *at the moment it runs*, not just at install time — so
+pre-installing `sra-tools` from a login node does **not** fix it on its own;
+jobs submitted to the default compute partition will fail (or succeed only
+intermittently, e.g. if a couple of tasks happen to land on a node with
+transient connectivity) with an error like:
 
-```bash
-sra-array install --dir ~/tools/sra-tools
-sra-array submit --ids ... --outdir ... --account ... --tools-dir ~/tools/sra-tools
+```
+int: connection not found while validating within network system module
 ```
 
-`prefetch` itself also needs to reach NCBI's servers to download `.sra`
-files — that's a separate, unavoidable requirement regardless of how
-`sra-tools` was installed.
+**Fix: submit to the cluster's data-transfer partition.** On Pawsey/Setonix
+this is the `copy` partition:
+
+```bash
+sra-array submit \
+  --ids SRR_Acc_List.txt \
+  --outdir /scratch/pawsey1142/$USER/rawFastq \
+  --account pawsey1142 \
+  --partition copy \
+  --cpus 2 --mem 4G \
+  --throttle 8
+```
+
+The `copy` partition is intended for lightweight data-movement jobs rather
+than heavy compute, so it's typically resource-constrained — check
+`sinfo -p copy` (or your cluster's equivalent) for the actual per-node
+CPU/memory limits and adjust `--cpus`/`--mem`/`--throttle` down accordingly
+rather than assuming the same values you'd use on the compute partition.
+Other clusters may name their internet-enabled partition differently (e.g.
+`dtn`, `xfer`) — check your site's documentation.
+
+If your cluster doesn't have a separate internet-enabled partition at all,
+`sra-tools` itself still needs to be reachable when it runs — talk to your
+HPC support team about the right way to get outbound access for a batch job
+on your system.
 
 ## Design notes
 

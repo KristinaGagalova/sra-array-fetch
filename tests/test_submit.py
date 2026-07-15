@@ -87,6 +87,47 @@ def test_render_script_substitutes_all_placeholders(tmp_path):
     assert 'export PYTHONPATH="/some/path/src' in script
 
 
+def test_render_script_omits_partition_line_by_default(tmp_path):
+    script = submit_mod.render_script(
+        job_name="sra_array",
+        account="pawsey1142",
+        array_range="1-5",
+        cpus=8,
+        mem="16G",
+        walltime="12:00:00",
+        log_dir=tmp_path / "logs",
+        ids_file=tmp_path / "ids.txt",
+        outdir=tmp_path / "out",
+        sra_cache=tmp_path / "cache",
+        tools_dir=tmp_path / "tools",
+        max_size="100G",
+        python_exe="python3",
+        package_parent_dir="/some/path/src",
+    )
+    assert "--partition" not in script
+
+
+def test_render_script_includes_partition_line_when_set(tmp_path):
+    script = submit_mod.render_script(
+        job_name="sra_array",
+        account="pawsey1142",
+        array_range="1-5",
+        cpus=8,
+        mem="16G",
+        walltime="12:00:00",
+        log_dir=tmp_path / "logs",
+        ids_file=tmp_path / "ids.txt",
+        outdir=tmp_path / "out",
+        sra_cache=tmp_path / "cache",
+        tools_dir=tmp_path / "tools",
+        max_size="100G",
+        python_exe="python3",
+        package_parent_dir="/some/path/src",
+        partition="copy",
+    )
+    assert "#SBATCH --partition=copy" in script
+
+
 def test_submit_dry_run_writes_script(tmp_path):
     ids = _write_ids(tmp_path, 5)
     result = submit_mod.submit(

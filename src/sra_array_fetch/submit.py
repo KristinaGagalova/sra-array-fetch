@@ -67,6 +67,7 @@ def render_script(
     max_size: str,
     python_exe: str,
     package_parent_dir: str,
+    partition: Optional[str] = None,
 ) -> str:
     """Fill in the SLURM template using plain string substitution.
 
@@ -76,6 +77,7 @@ def render_script(
     ``str.replace`` sidesteps any collision entirely.
     """
     template = TEMPLATE_PATH.read_text()
+    partition_line = f"#SBATCH --partition={partition}\n" if partition else ""
     replacements = {
         "__JOB_NAME__": job_name,
         "__ACCOUNT__": account,
@@ -83,6 +85,7 @@ def render_script(
         "__CPUS__": str(cpus),
         "__MEM__": mem,
         "__WALLTIME__": walltime,
+        "__PARTITION_LINE__": partition_line,
         "__LOG_DIR__": str(log_dir),
         "__PYTHON__": python_exe,
         "__IDS__": str(ids_file),
@@ -115,6 +118,7 @@ def submit(
     log_dir: Optional[Path] = None,
     python_exe: str = "python3",
     package_parent_dir: Optional[str] = None,
+    partition: Optional[str] = None,
     dry_run: bool = False,
 ) -> Union[subprocess.CompletedProcess, str]:
     """Generate the batch script and submit it with ``sbatch`` (unless dry_run)."""
@@ -153,6 +157,7 @@ def submit(
         max_size=max_size,
         python_exe=python_exe,
         package_parent_dir=package_parent_dir,
+        partition=partition,
     )
 
     script_path = log_dir / f"{job_name}.generated.slurm"

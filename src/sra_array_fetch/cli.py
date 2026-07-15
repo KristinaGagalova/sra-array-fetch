@@ -53,6 +53,14 @@ def _add_submit_parser(subparsers):
     p.add_argument("--cpus", type=int, default=8, help="cpus-per-task (default: 8).")
     p.add_argument("--mem", default="16G", help="Memory per task (default: 16G).")
     p.add_argument("--time", dest="walltime", default="12:00:00", help="Walltime (default: 12:00:00).")
+    p.add_argument(
+        "--partition", default=None,
+        help=(
+            "SLURM partition (e.g. 'copy' on Pawsey/Setonix). Needed on clusters "
+            "where the default compute partition has no internet access, since "
+            "prefetch must reach NCBI. Omit to use the account's default partition."
+        ),
+    )
     p.add_argument("--max-size", default="100G", help="Max .sra download size passed to prefetch.")
     p.add_argument("--python", default=sys.executable, help="Python interpreter to invoke on compute nodes.")
     p.add_argument("--dry-run", action="store_true", help="Generate the batch script but do not submit it.")
@@ -123,6 +131,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             walltime=args.walltime,
             max_size=args.max_size,
             python_exe=args.python,
+            partition=args.partition,
             dry_run=args.dry_run,
         )
         return 0
